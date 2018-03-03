@@ -37,12 +37,13 @@ $("#submit-train").on("click", function() {
 
 });
 
+
 //Append a new train and save to firebase every time a manager adds one
 database.ref().on("child_added", function(snapshot) {
 
     var newRow = $("<tr>");
 
-    var frequencyCheck = snapshot.val().frequency;
+    var freq = snapshot.val().frequency;
 
     var dayEnd = moment("23:59", "HH:mm");
 
@@ -51,27 +52,26 @@ database.ref().on("child_added", function(snapshot) {
 
     var time = [];
 
-    for (var i = firstMoment; i.isSameOrBefore(dayEnd); i.add(frequencyCheck, "minutes")) {
+    // for (var i = firstMoment; i.isSameOrBefore(dayEnd); i.add(freq, "minutes")) {
 
 
 
-        time.push(i.format("HH:mm"));
-    }
-
-    var currentTime = moment("20:52", "HH:mm");
+    //     time.push(i.format("HH:mm"));
+    // }
+    var now = moment().format("hh,mm")
 
     var futureTimes = [];
 
     for (var i = 0; i < time.length; i++) {
 
-        if (moment(time[i], "HH:mm").isAfter(currentTime)) {
+        if (moment(time[i], "HH:mm").isAfter(now)) {
             futureTimes.push(time[i]);
         }
     }
 
     var nextTrain = futureTimes[0];
 
-    var minutesAway = moment(nextTrain, "HH:mm").diff(currentTime, "minutes");
+    var minutesAway = moment(nextTrain, "hh:mm").diff(now, "minutes");
 
     var showTime = moment(nextTrain, "HH:mm").format("h:mm a");
 
