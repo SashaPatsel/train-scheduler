@@ -11,12 +11,6 @@ firebase.initializeApp(config);
 
 var database = firebase.database();
 
-var current = moment().format("YYYY-MM-DD");
-var array = current.split("-");
-var years = parseInt(array[0]);
-var months = parseInt(array[1]);
-var days = parseInt(array[2]);
-
 //Push to firebase
 $("#submit-train").on("click", function() {
 
@@ -27,59 +21,72 @@ $("#submit-train").on("click", function() {
     var trainTime = $("#train-time").val().trim();
     var trainFreq = $("#train-freq").val().trim();
 
-
     database.ref().push({
         name: trainName,
         destination: trainDest,
         time: trainTime,
         frequency: trainFreq
     })
-
 });
 
 
 //Append a new train and save to firebase every time a manager adds one
 database.ref().on("child_added", function(snapshot) {
 
-    var newRow = $("<tr>");
-
-    var freq = snapshot.val().frequency;
-
-    var dayEnd = moment("23:59", "HH:mm");
-
-    var firstMoment = moment(snapshot.val().time, "HH:mm");
+  var nextTrain = futureTrain(snapshot.val().frequency, snapshot.val().time);
+  var times = calculateArrivalTime(nextTrain);
+  var westernTime = times[0];
+  var minutesAway = times[1];
 
 
-    var time = [];
+  var newTableRow = $("<tr>");
 
-    // for (var i = firstMoment; i.isSameOrBefore(dayEnd); i.add(freq, "minutes")) {
+  var newTableData =
+  $("<td>" + snapshot.val().name + "</td>" +
+  "<td>" + snapshot.val().destination + "</td>" +
+  "<td>" + snapshot.val().frequency + "</td>" +
+  "<td>" + westernTime + "</td>"+
+  "<td>" + minutesAway + "</td>");
 
 
+  newTableRow.append(newTableData);
+  $("#train-row").append(newTableRow);
 
-    //     time.push(i.format("HH:mm"));
-    // }
-    var now = moment().format("hh,mm")
-
-    var futureTimes = [];
-
-    for (var i = 0; i < time.length; i++) {
-
-        if (moment(time[i], "HH:mm").isAfter(now)) {
-            futureTimes.push(time[i]);
-        }
-    }
-
-    var nextTrain = futureTimes[0];
-
-    var minutesAway = moment(nextTrain, "hh:mm").diff(now, "minutes");
-
-    var showTime = moment(nextTrain, "HH:mm").format("h:mm a");
-
-    newRow.append("<td>" + snapshot.val().name + "</td>");
-    newRow.append("<td>" + snapshot.val().destination + "</td>");
-    newRow.append("<td>" + snapshot.val().frequency + "</td>");
-    newRow.append("<td>" + showTime + "</td>");
-    newRow.append("<td>" + minutesAway + "</td>");
-
-    $("#train-row").append(newRow);
 });
+
+function futureTrain(freq, initTime) {
+
+  var timeMoment = moment(initTime, "HH:mm");
+
+  var endDay = moment("23:59", "HH:mm");
+
+  var timetable = [];
+
+  for (var i = timeMoment; i.isSameOrBefore(endDay); i.add(freq, "minutes")) {
+    var times = i.format("HH:mm");
+    timetable.push(times);
+  }
+
+  var now = moment();
+
+  var futureTrains = [];
+
+  for (var i = 0; i < timetable.length; i++) {
+    if (moment(timetable[i], "HH:mm").isAfter(now)) {
+      futureTrains.push(timetable[i]);
+    }
+  }
+
+  var nextTrain = futureTrains[0];
+
+  return nextTrain;
+
+}
+
+function calculateArrivalTime(nextTrain) {
+  var now = moment();
+  var minutesAway = moment(nextTrain, "HH:mm").diff(now, "minutes");
+  var westernTime = moment(nextTrain, "HH:mm").format("h:mm a");
+  return [westernTime, minutesAway];
+}
+
