@@ -60,16 +60,16 @@ database.ref().on("child_added", function(snapshot) {
 
     var currentTime = moment("20:52", "HH:mm");
 
-    var futureArray = [];
+    var futureTimes = [];
 
     for (var i = 0; i < time.length; i++) {
 
         if (moment(time[i], "HH:mm").isAfter(currentTime)) {
-            futureArray.push(time[i]);
+            futureTimes.push(time[i]);
         }
     }
 
-    var nextTrain = futureArray[0];
+    var nextTrain = futureTimes[0];
 
     var minutesAway = moment(nextTrain, "HH:mm").diff(currentTime, "minutes");
 

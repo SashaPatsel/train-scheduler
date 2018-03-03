@@ -1,0 +1,20 @@
+body {
+   background: url("https://filming.networkrail.co.uk/resources/v1.5260/images/700/0/25/HPDH208436.jpg") no-repeat center center fixed;
+  background-size: cover;
+  color: #ffa700;
+}
+.jumbo-style {
+  background-color: #890000;
+}
+
+.panel {
+  background-color: #890000;
+}
+
+#pan-h {
+  background-color: #fb7e00;
+}
+
+#pan-he {
+  background-color: #fb7e00;
+}
