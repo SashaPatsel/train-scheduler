@@ -34,7 +34,7 @@ $("#submit-train").on("click", function() {
 database.ref().on("child_added", function(snapshot) {
 
   var nextTrain = futureTrain(snapshot.val().frequency, snapshot.val().time);
-  var times = calculateArrivalTime(nextTrain);
+  var times = getArrive(nextTrain);
   var westernTime = times[0];
   var minutesAway = times[1];
 
@@ -83,7 +83,7 @@ function futureTrain(freq, initTime) {
 
 }
 
-function calculateArrivalTime(nextTrain) {
+function getArrive(nextTrain) {
   var now = moment();
   var minutesAway = moment(nextTrain, "HH:mm").diff(now, "minutes");
   var westernTime = moment(nextTrain, "HH:mm").format("h:mm a");
